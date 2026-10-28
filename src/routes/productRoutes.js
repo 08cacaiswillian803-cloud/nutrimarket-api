@@ -1,0 +1,11 @@
+const router = require('express').Router();
+const controller = require('../controllers/productController');
+const { validarProducto } = require('../validators/productValidators');
+router.get('/', controller.listar);
+router.post('/', validarProducto, controller.crear);
+router.get('/:id/stock', controller.consultarStock);
+router.patch('/:id/stock', controller.ajustarStock);
+router.get('/:id', controller.obtener);
+router.put('/:id', validarProducto, controller.actualizar);
+router.delete('/:id', controller.eliminar);
+module.exports = router;
