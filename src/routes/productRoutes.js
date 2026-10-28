@@ -1,0 +1,2 @@
+const router=require('express').Router();const c=require('../controllers/productController');const {protect,restrictTo}=require('../middlewares/auth');const {createProductRules,updateProductRules}=require('../validators/productValidators');
+router.get('/',c.list);router.get('/:id',c.getOne);router.post('/',protect,restrictTo('admin'),createProductRules,c.create);router.patch('/:id',protect,restrictTo('admin'),updateProductRules,c.update);router.patch('/:id/deactivate',protect,restrictTo('admin'),c.deactivate);module.exports=router;
