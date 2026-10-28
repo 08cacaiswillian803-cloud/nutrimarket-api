@@ -1,0 +1,16 @@
+require('./config/env');
+const express=require('express');const helmet=require('helmet');const cors=require('cors');const morgan=require('morgan');const rateLimit=require('express-rate-limit');const path=require('path');const swaggerUi=require('swagger-ui-express');
+const {notFound,errorHandler}=require('./middlewares/errorHandler');
+const authRoutes=require('./routes/authRoutes');const userRoutes=require('./routes/userRoutes');const categoryRoutes=require('./routes/categoryRoutes');const productRoutes=require('./routes/productRoutes');const orderRoutes=require('./routes/orderRoutes');const openapi=require('./config/openapi');
+const app=express();
+app.disable('x-powered-by');app.use(helmet({crossOriginResourcePolicy:{policy:'cross-origin'}}));
+const origins=(process.env.CORS_ORIGIN||'http://localhost:3000,http://127.0.0.1:3000').split(',').map(s=>s.trim());
+app.use(cors({origin:(origin,callback)=>{if(!origin||origins.includes('*')||origins.includes(origin))return callback(null,true);return callback(new Error('Origen no permitido por CORS'));}}));
+app.use(express.json({limit:'1mb'}));app.use(express.urlencoded({extended:false,limit:'1mb'}));app.use(morgan(process.env.NODE_ENV==='test'?'tiny':'dev'));
+const authLimiter=rateLimit({windowMs:15*60*1000,limit:Number(process.env.AUTH_RATE_LIMIT||100),standardHeaders:'draft-7',legacyHeaders:false,message:{error:{code:'RATE_LIMITED',message:'Demasiados intentos; intenta más tarde'}}});
+app.get('/api/health',(_req,res)=>res.json({status:'ok',service:'NutriMarket API',timestamp:new Date().toISOString()}));
+app.get('/api/openapi.json',(_req,res)=>res.json(openapi));app.use('/api/docs',swaggerUi.serve,swaggerUi.setup(openapi));
+app.use('/api/auth',authLimiter,authRoutes);app.use('/api/users',userRoutes);app.use('/api/categories',categoryRoutes);app.use('/api/products',productRoutes);app.use('/api/orders',orderRoutes);
+app.use('/qa',express.static(path.join(__dirname,'../qa-ui')));
+app.use(notFound);app.use(errorHandler);
+module.exports=app;
