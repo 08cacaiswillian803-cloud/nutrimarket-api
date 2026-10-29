@@ -33,5 +33,63 @@ async function createOrder(userId, requestedItems) {
     });
   } finally { await session.endSession(); }
   return created;
+  async function cancelOrder(orderId, userId, userRole) {
+  const session = await mongoose.startSession();
+  let cancelledOrder;
+
+  try {
+    await session.withTransaction(async () => {
+      const order = await Order.findById(orderId).session(session);
+
+      if (!order) {
+        throw new AppError('Orden no encontrada', 404, 'ORDER_NOT_FOUND');
+      }
+
+      if (
+        userRole !== 'admin' &&
+        String(order.user) !== String(userId)
+      ) {
+        throw new AppError(
+          'No puedes cancelar órdenes de otro usuario',
+          403,
+          'FORBIDDEN'
+        );
+      }
+
+      if (order.status !== 'confirmed') {
+        throw new AppError(
+          'La orden ya fue cancelada',
+          409,
+          'ORDER_ALREADY_CANCELLED'
+        );
+      }
+
+      for (const item of order.items) {
+        const result = await Product.updateOne(
+          { _id: item.product },
+          { $inc: { stock: item.quantity } },
+          { session }
+        );
+
+        if (result.modifiedCount !== 1) {
+          throw new AppError(
+            'No se pudo devolver el inventario de un producto',
+            409,
+            'STOCK_RESTORATION_FAILED'
+          );
+        }
+      }
+
+      order.status = 'cancelled';
+      await order.save({ session });
+
+      cancelledOrder = order;
+    });
+  } finally {
+    await session.endSession();
+  }
+
+  return cancelledOrder;
 }
-module.exports = { createOrder };
+}
+module.exports = { createOrder, cancelOrder };
