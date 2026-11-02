@@ -1,14 +1,50 @@
-﻿{
+{
   "name": "nutrimarket-api",
   "version": "1.0.0",
-  "description": "API REST de NutriMarket",
+  "private": true,
+  "description": "API REST de comercio electrónico simulado para NutriMarket",
   "main": "src/server.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "jest --runInBand",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage --runInBand",
+    "seed:admin": "node src/scripts/seedAdmin.js",
+    "seed:demo": "node src/scripts/seedDemo.js",
+    "test:ui": "mocha --timeout 30000 ui_tests/test_suite.js",
+    "ci:api": "node src/scripts/ciApi.js",
+    "test:stubs": "jest --runInBand --selectProjects stubs",
+    "test:integration": "jest --runInBand --selectProjects database",
+    "test:regression": "jest --runInBand -t REG-",
+    "newman": "newman run postman/NutriMarket_API_Collection.json -e postman/NutriMarket_Environment.json",
+    "test:regression:auth": "jest --runInBand -t REG-AUTH",
+    "test:regression:tras-cambio-ordenes": "jest --runInBand -t \"REG-(AUTH|CATALOG|FLOW)\"",
+    "test:regression:tras-cambio-catalogo": "jest --runInBand -t \"REG-(CATALOG|ORDERS|FLOW)\""
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.5",
+    "morgan": "^1.10.0",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "mongodb-memory-server": "^10.1.4",
+    "mocha": "^10.8.2",
+    "nodemon": "^3.1.7",
+    "selenium-webdriver": "^4.27.0",
+    "supertest": "^7.0.0",
+    "newman": "^6.2.1"
+  }
 }
