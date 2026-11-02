@@ -1,0 +1,33 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Cobertura y pruebas
+coverage/
+.nyc_output/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos temporales
+tmp/
+temp/
+
+# Editores
+.vscode/
+.idea/
+
+# Reportes generados
+performance/reporte-prueba/
+performance/reporte-un-usuario/

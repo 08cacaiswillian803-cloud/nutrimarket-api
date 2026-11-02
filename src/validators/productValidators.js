@@ -1,0 +1,5 @@
+const {body,param}=require('express-validator');
+const validateRequest=require('../middlewares/validateRequest');
+const createProductRules=[body('sku').trim().isLength({min:3,max:40}).withMessage('SKU requerido, entre 3 y 40 caracteres'),body('name').trim().isLength({min:2,max:120}).withMessage('Nombre requerido, entre 2 y 120 caracteres'),body('description').optional().isString().isLength({max:1000}),body('category').isMongoId().withMessage('Categoría inválida'),body('price').isFloat({gt:0,max:100000000}).withMessage('El precio debe ser mayor que cero'),body('stock').isInt({min:0}).withMessage('El stock debe ser un entero mayor o igual a cero'),validateRequest];
+const updateProductRules=[param('id').isMongoId().withMessage('ID inválido'),body('sku').optional().trim().isLength({min:3,max:40}),body('name').optional().trim().isLength({min:2,max:120}),body('description').optional().isString().isLength({max:1000}),body('category').optional().isMongoId(),body('price').optional().isFloat({gt:0,max:100000000}),body('stock').optional().isInt({min:0}),body('active').optional().isBoolean(),validateRequest];
+module.exports={createProductRules,updateProductRules};
